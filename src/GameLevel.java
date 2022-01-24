@@ -1,0 +1,2 @@
+public class GameLevel {
+}
