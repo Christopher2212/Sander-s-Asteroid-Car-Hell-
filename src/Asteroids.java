@@ -33,54 +33,63 @@ public class Asteroids {
         setup();
     }
     public static  void setup(){
-        JFrame appFrame = new JFrame ("Asteroids");
-        final int XOFFSET = 0;
-        final int YOFFSET = 40;
-        final int WINWIDTH = 500;
-        final int WINHEIGHT = 500;
-        final double pi = 3.14159265358979;
-        final double twoPi = 2.0 * 3.14159265358979;
+        appFrame = new JFrame ("Asteroids");
+        XOFFSET = 0;
+        YOFFSET = 40;
+        WINWIDTH = 500;
+        WINHEIGHT = 500;
+        pi = 3.14159265358979;
+        twoPi = 2.0 * 3.14159265358979;
         endgame = false;
-        double p1width = 18.5;
-        double p1height = 25.0;
-        double p1originalX = (double)XOFFSET + ((double)WINWIDTH / 2.0) - (p1width / 2.0);
-        double p1originalY = (double)XOFFSET + ((double)WINHEIGHT / 2.0) - (p1height / 2.0);
-        Vector <ImageObject> playerBullets = new Vector<ImageObject>();
-        Vector <Long> playerBulletsTimes = new Vector<Long>();
-        int bulletWidth = 5;
-        long playerbulletlifetime = new Long(1600);
-        long enemybulletlifetime = new Long(1600);
-        long explosionlifetime = new Long(800);
-        int playerbulletgap = 1;
-        int flamecount = 1;
-        double flamewidth = 12.0;
-        int expcount = 1;
-        int level = 3;
-        Vector <ImageObject> asteroids = new Vector<ImageObject>();
-        Vector <Integer> asteroidsTypes = new Vector<Integer>();
-        int ast1width = 32;
-        int ast2width = 21;
-        int ast3width = 26;
+        p1width = 18.5;
+        p1height = 25.0;
+        p1originalX = (double)XOFFSET + ((double)WINWIDTH / 2.0) - (p1width / 2.0);
+        p1originalY = (double)YOFFSET + ((double)WINHEIGHT / 2.0) - (p1height / 2.0);
+        playerBullets = new Vector<ImageObject>();
+        playerBulletsTimes = new Vector<Long>();
+        bulletWidth = 5;
+        playerbulletlifetime = new Long(1600);
+        enemybulletlifetime = new Long(1600);
+        explosionlifetime = new Long(800);
+        playerbulletgap = 1;
+        flamecount = 1;
+        flamewidth = 12.0;
+        expcount = 1;
+        level = 3;
+        asteroids = new Vector<ImageObject>();
+        asteroidsTypes = new Vector<Integer>();
+        ast1width = 32;
+        ast2width = 21;
+        ast3width = 26;
 
         try{
-            BufferedImage background = ImageIO.read(new File(""));
-            BufferedImage player = ImageIO.read(new File(""));
-            BufferedImage flame1 = ImageIO.read(new File(""));
-            BufferedImage flame2 = ImageIO.read(new File(""));
-            BufferedImage flame3 = ImageIO.read(new File(""));
-            BufferedImage flame4 = ImageIO.read(new File(""));
-            BufferedImage flame5 = ImageIO.read(new File(""));
-            BufferedImage flame6 = ImageIO.read(new File(""));
-            BufferedImage ast1 = ImageIO.read(new File(""));
-            BufferedImage ast2 = ImageIO.read(new File(""));
-            BufferedImage ast3 = ImageIO.read(new File(""));
-            BufferedImage playerBullet = ImageIO.read(new File(""));
-            BufferedImage enemyShip = ImageIO.read(new File(""));
-            BufferedImage enemyBullet = ImageIO.read(new File(""));
-            BufferedImage exp1 = ImageIO.read(new File(""));
-            BufferedImage exp2 = ImageIO.read(new File(""));
+            background = ImageIO.read(new File(""));
+            player = ImageIO.read(new File(""));
+            flame1 = ImageIO.read(new File(""));
+            flame2 = ImageIO.read(new File(""));
+            flame3 = ImageIO.read(new File(""));
+            flame4 = ImageIO.read(new File(""));
+            flame5 = ImageIO.read(new File(""));
+            flame6 = ImageIO.read(new File(""));
+            ast1 = ImageIO.read(new File(""));
+            ast2 = ImageIO.read(new File(""));
+            ast3 = ImageIO.read(new File(""));
+            playerBullet = ImageIO.read(new File(""));
+            enemyShip = ImageIO.read(new File(""));
+            enemyBullet = ImageIO.read(new File(""));
+            exp1 = ImageIO.read(new File(""));
+            exp2 = ImageIO.read(new File(""));
         }catch(IOException ioe){
             ioe.printStackTrace();
         }
     }
+    public static class Animate implements Runnable {
+        public void run(){
+            while(endgame == false){
+
+            }
+        }
+    }
+
 }
+
