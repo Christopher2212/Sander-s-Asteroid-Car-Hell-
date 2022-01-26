@@ -28,12 +28,15 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
+
+//
 public class Asteroids {
-    public Asteroids(){
+    public Asteroids() {
         setup();
     }
-    public static  void setup(){
-        appFrame = new JFrame ("Asteroids");
+
+    public static void setup() {
+        appFrame = new JFrame("Asteroids");
         XOFFSET = 0;
         YOFFSET = 40;
         WINWIDTH = 500;
@@ -43,8 +46,8 @@ public class Asteroids {
         endgame = false;
         p1width = 18.5;
         p1height = 25.0;
-        p1originalX = (double)XOFFSET + ((double)WINWIDTH / 2.0) - (p1width / 2.0);
-        p1originalY = (double)YOFFSET + ((double)WINHEIGHT / 2.0) - (p1height / 2.0);
+        p1originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
+        p1originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
         playerBullets = new Vector<ImageObject>();
         playerBulletsTimes = new Vector<Long>();
         bulletWidth = 5;
@@ -62,7 +65,7 @@ public class Asteroids {
         ast2width = 21;
         ast3width = 26;
 
-        try{
+        try {
             background = ImageIO.read(new File(""));
             player = ImageIO.read(new File(""));
             flame1 = ImageIO.read(new File(""));
@@ -79,17 +82,159 @@ public class Asteroids {
             enemyBullet = ImageIO.read(new File(""));
             exp1 = ImageIO.read(new File(""));
             exp2 = ImageIO.read(new File(""));
-        }catch(IOException ioe){
+        } catch (IOException ioe) {
             ioe.printStackTrace();
         }
     }
+
     public static class Animate implements Runnable {
-        public void run(){
-            while(endgame == false){
+        public void run() {
+            while (endgame == false) {
 
             }
         }
     }
 
+    private static void insertPlayerBullet() {
+
+    }
+
+    private static void insertEnemyBullet() {
+
+    }
+
+    private static class PlayerMover implements Runnable {
+
+    }
+
+    private static class FlameMover implements Runnable {
+
+    }
+
+    private static class AsteroidsMover implements Runnable {
+
+    }
+
+    private static class PlayerBulletsMover implements Runnable {
+
+    }
+
+    private static class EnemyShipMover implements Runnable {
+
+    }
+
+    private static class EnemyBulletsMover implements Runnable {
+
+    }
+
+    private static class CollisionChecker implements Runnable {
+
+    }
+
+    private static class WinChecker implements Runnable {
+
+    }
+
+    private static void generateAsteroids() {
+
+    }
+
+    private static void generateEnemy() {
+
+    }
+
+    private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
+
+    }
+
+    private static void lockrotateObjAroundObjtop(ImageObject objOuter, ImageObjct objInner, double dist) {
+
+    }
+
+    private static AffineTransformOp rotateImageObject(ImageObject obj) {
+
+    }
+
+    private static AffineTransformOp spinImageObject(ImageObject obj){
+
+    }
+
+
+/**
+ * zeek stopped here, I am working from back to front. page 101
+ * **/
+//    public double getWidth() {
+//        re
+//    }
+    public double getHeight() {
+        return yheight;
+    }
+    public double getAngle() {
+        return angle;
+    }
+
+    public double getInternalAngle() {
+        return internalangle;
+    }
+
+    public void setAngle(double angleinput) {
+
+    }
+
+    public setInternalAngle(double internalangleinput) {
+
+    }
+
+    public Vector<Double> getCoords() {
+        return coords;
+    }
+
+    public void setCoords(Vector<Double> coordsiput) {
+
+    }
+
+    public void generateTriangles() {
+
+    }
+
+    public void printTriangles() {
+
+    }
+
+    public double getComX() {
+        return 0;
+    }
+
+    public double getComY() {
+        return 0;
+    }
+
+    public void move(double xinput, double yinput) {
+
+    }
+
+    public void moveto(double xinput, double yinput) {
+
+    }
+
+    public void screenWrap(double leftEdge, double rightEdge, double topEdge, double bottomEdge) {
+
+    }
+
+    public void rotate(double angleinput) {
+
+    }
+
+    public void spin(double internalangleinput) {
+
+    }
+
+    public static void bindKey(JPanel myPanel, String input) {
+
+    }
+
+    public static void main(String[] args) {
+    }
+    //stay inside this last bracket NOTE TO SELF - zeek
 }
 
