@@ -266,6 +266,10 @@ public class Asteroids {
         appFrame.setVisible(true);
     }
 
+    /**
+     * testing the push command
+     */
+
     private static Boolean endgame;
     private static Boolean enemyAlive;
     private static BufferedImage background;

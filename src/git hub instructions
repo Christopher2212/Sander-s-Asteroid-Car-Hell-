@@ -1,3 +1,17 @@
 git add --all
 git commit -m “Adding all files”
 git push
+
+git remote -v
+! checks the origin of a project
+
+git remote add upstream [url]
+! adds reference to source of forked project
+
+git fetch upstream
+git checkout master
+
+git merge upstream/master
+
+git status
+git diff
