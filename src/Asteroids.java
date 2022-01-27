@@ -155,20 +155,21 @@ public class Asteroids {
 
     }
 
-    private static AffineTransformOp spinImageObject(ImageObject obj){
+    private static AffineTransformOp spinImageObject(ImageObject obj) {
 
     }
 
 
-/**
- * zeek stopped here, I am working from back to front. page 101
- * **/
+    /**
+     * zeek stopped here, I am working from back to front. page 101
+     **/
 //    public double getWidth() {
 //        re
 //    }
     public double getHeight() {
         return yheight;
     }
+
     public double getAngle() {
         return angle;
     }
@@ -234,7 +235,107 @@ public class Asteroids {
     }
 
     public static void main(String[] args) {
+        setup();
+        appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        appFrame.setSize(501, 585);
+
+        JPanel myPanel = new JPanel();
+
+        String[] levels = {"One" + "Two" + "Three" +
+                "Four" + "Five" + "Six" + "Seven" + "Eight" + "Nine" + "Ten"};
+        JComboBox<String> levelMenu = new JComboBox<String>(levels);
+        levelMenu.setSelectedIndex(2);
+        levelMenu.addActionListener(new GameLevel());
+        myPanel.add(levelMenu);
+
+        JButton newGameButton = new JButton("New Game");
+        newGameButton.addActionListener(new StartGame());
+        myPanel.add(newGameButton);
+
+        JButton quitButton = new JButton("Quit Game");
+        quitButton.addActionListener(new QuitGame());
+        myPanel.add(quitButton);
+
+        bindKey(myPanel, "UP");
+        bindKey(myPanel, "DOWN");
+        bindKey(myPanel, "LEFT");
+        bindKey(myPanel, "RIGHT");
+        bindKey(myPanel, "F");
+
+        appFrame.getContentPane().add(myPanel, "South");
+        appFrame.setVisible(true);
     }
+
+    private static Boolean endgame;
+    private static Boolean enemyAlive;
+    private static BufferedImage background;
+    private static BufferedImage player;
+
+    private static Boolean upPressed;
+    private static Boolean downPressed;
+    private static Boolean leftPressed;
+    private static Boolean rightPressed;
+    private static Boolean firePressed;
+
+    private static ImageObject p1;
+    private static double p1width;
+    private static double p1height;
+    private static double p1originalX;
+    private static double p1originalY;
+    private static double p1velocity;
+
+    private static ImageObject enemy;
+    private static BufferedImage enemyShip;
+    private static BufferedImage enemyBullet;
+    private static Vector<ImageObject> enemyBullets;
+    private static Vector<Long> enemyBulletsTimes;
+    private static Long enemybulletlifetime;
+
+    private static Vector<ImageObject> playerBullets;
+    private static Vector<Long> playerBulletsTimes;
+    private static double bulletWidth;
+    private static BufferedImage playerBullet;
+    private static Long playerbulletlifetime;
+    private static double playerbulletgap;
+
+    private static ImageObject flames;
+    private static BufferedImage flame1;
+    private static BufferedImage flame2;
+    private static BufferedImage flame3;
+    private static BufferedImage flame4;
+    private static BufferedImage flame5;
+    private static BufferedImage flame6;
+    private static int flamecount;
+    private static double flamewidth;
+    private static int level;
+
+    private static Vector<ImageObject> asteroids;
+    private static Vector<Integer> asteroidsTypes;
+    private static BufferedImage ast1;
+    private static BufferedImage ast2;
+    private static BufferedImage ast3;
+    private static double ast1width;
+    private static double ast2width;
+    private static double ast3width;
+
+    private static Vector<ImageObject> explosions;
+    private static Vector<Long> explosionsTimes;
+    private static Long explosionlifetime;
+    private static BufferedImage exp1;
+    private static BufferedImage exp2;
+    private static int expcount;
+
+    private static int XOFFSET;
+    private static int YOFFSET;
+    private static int WINWIDTH;
+    private static int WINHEIGHT;
+
+    private static double pi;
+    private static double twoPi;
+
+    private static JFrame appFrame;
+
+    private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
     //stay inside this last bracket NOTE TO SELF - zeek
 }
 
