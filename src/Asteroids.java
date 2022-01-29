@@ -28,6 +28,11 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
+/**
+ *TAG SOME GIT COMMANDS HERE OR LINKS TO HELPFUL SITES/VIDEOS
+ *
+ */
+
 
 //
 public class Asteroids {
