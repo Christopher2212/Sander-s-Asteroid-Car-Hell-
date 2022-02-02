@@ -9,7 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
-import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
 
@@ -44,12 +43,14 @@ public class Asteroids {
         appFrame = new JFrame("Asteroids");
         XOFFSET = 0;
         YOFFSET = 40;
-        WINWIDTH = 500;
-        WINHEIGHT = 500;
+        // Changed the window height and width for png
+        WINWIDTH = 480;
+        WINHEIGHT = 480;
         pi = 3.14159265358979;
         twoPi = 2.0 * 3.14159265358979;
         endgame = false;
-        p1width = 18.5;
+        // TODO: Make sure that entities' width and height match the png width and height
+        p1width = 25.0;
         p1height = 25.0;
         p1originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p1originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
@@ -66,27 +67,28 @@ public class Asteroids {
         level = 3;
         asteroids = new Vector<ImageObject>();
         asteroidsTypes = new Vector<Integer>();
-        ast1width = 32;
-        ast2width = 21;
-        ast3width = 26;
+        ast1width = 45;
+        ast2width = 45;
+        ast3width = 45;
 
         try { //TODO add pictures and pathnames to said pictures
-            background = ImageIO.read(new File(""));
-            player = ImageIO.read(new File(""));
-            flame1 = ImageIO.read(new File(""));
-            flame2 = ImageIO.read(new File(""));
-            flame3 = ImageIO.read(new File(""));
-            flame4 = ImageIO.read(new File(""));
-            flame5 = ImageIO.read(new File(""));
-            flame6 = ImageIO.read(new File(""));
-            ast1 = ImageIO.read(new File(""));
-            ast2 = ImageIO.read(new File(""));
-            ast3 = ImageIO.read(new File(""));
-            playerBullet = ImageIO.read(new File(""));
-            enemyShip = ImageIO.read(new File(""));
-            enemyBullet = ImageIO.read(new File(""));
-            exp1 = ImageIO.read(new File(""));
-            exp2 = ImageIO.read(new File(""));
+            background = ImageIO.read(new File("src/pictures/Background.png"));
+            player = ImageIO.read(new File("src/pictures/PlayerShip.png"));
+            flame1 = ImageIO.read(new File("src/pictures/Flame 1.png"));
+            flame2 = ImageIO.read(new File("src/pictures/Flame 2.png"));
+            flame3 = ImageIO.read(new File("src/pictures/Flame 3.png"));
+            flame4 = ImageIO.read(new File("src/pictures/BackupFlame1.png"));
+            flame5 = ImageIO.read(new File("src/pictures/BackupFlame2.png"));
+            flame6 = ImageIO.read(new File("src/pictures/BackupFlame3.png"));
+            ast1 = ImageIO.read(new File("src/pictures/Meteor.png"));
+            ast2 = ImageIO.read(new File("src/pictures/Meteor2.png"));
+            ast3 = ImageIO.read(new File("src/pictures/Meteor3.png"));
+            playerBullet = ImageIO.read(new File("src/pictures/playerBullet.png"));
+            enemyShip = ImageIO.read(new File("src/pictures/EnemyShip.png"));
+            enemyBullet = ImageIO.read(new File("src/pictures/enemyBullet.png"));
+            exp1 = ImageIO.read(new File("src/pictures/Explosion1.png"));
+            exp2 = ImageIO.read(new File("src/pictures/Explosion2.png"));
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -124,6 +126,7 @@ public class Asteroids {
             Random randomNumbers = new Random(LocalTime.now().getNano());
             ImageObject bullet = new ImageObject(enemy.getX() + enemy.getWidth() / 2.0, enemy.getY() + enemy.getHeight() / 2.0, bulletWidth, bulletWidth, randomNumbers.nextInt(360));
             // Why Sanders commented the next method is unknown to me
+            // It makes the code uber buggy
             //lockrotateObjAroundObjbottom(bullet, enemy, enemy.getWidth()/2.0);
             enemyBullets.addElement(bullet);
             enemyBulletsTimes.addElement(System.currentTimeMillis());
@@ -139,7 +142,7 @@ public class Asteroids {
         }
 
         public void run() {
-            while (endgame = false) {
+            while (endgame == false) {
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -205,11 +208,12 @@ public class Asteroids {
             spinstep = 0.01;
             spindirection = new Vector<Integer>();
         }
-
+        //TODO check on the math here
+        /**FROM ZEEK "this math is exact to the book"*/
         public void run() {
-            Random ranomNumbers = new Random(LocalTime.now().getNano());
+            Random randomNumbers = new Random(LocalTime.now().getNano());
             for (int i = 0; i < asteroids.size(); i++) {
-                spindirection.addElement(ranomNumbers.nextInt(2));
+                spindirection.addElement(randomNumbers.nextInt(2));
             }
             while (endgame == false) {
                 try {
@@ -238,7 +242,7 @@ public class Asteroids {
         private double spinstep;
         private Vector<Integer> spindirection;
     }
-
+    //looks good
     private static class PlayerBulletsMover implements Runnable {
         public PlayerBulletsMover() {
             velocity = 1.0;
@@ -262,14 +266,15 @@ public class Asteroids {
                         }
                     }
                 } catch (java.lang.ArrayIndexOutOfBoundsException aie) {
-                    aie.printStackTrace();
+                    playerBullets.clear();
+                    playerBulletsTimes.clear() ;
                 }
             }
         }
 
         private double velocity;
     }
-
+    //looks good
     private static class EnemyShipMover implements Runnable {
         public EnemyShipMover() {
             velocity = 1.0;
@@ -298,7 +303,7 @@ public class Asteroids {
                             insertEnemyBullet();
                         }
                     }
-                } catch (ArrayIndexOutOfBoundsException aioobe) {
+                } catch (java.lang.ArrayIndexOutOfBoundsException aioobe) {
                     aioobe.printStackTrace();
                 }
             }
@@ -306,7 +311,7 @@ public class Asteroids {
 
         private double velocity;
     }
-
+    //TODO check on the math here
     private static class EnemyBulletsMover implements Runnable {
         public EnemyBulletsMover() {
             velocity = 1.2;
@@ -455,23 +460,23 @@ public class Asteroids {
             jliae.printStackTrace();
         }
     }
-
+    //looks good
     private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
         objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.00) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0, objInner.getY() + (dist + objInner.getHeight() /2.0)*Math.sin(-objInner.getAngle() + pi/2.0) + objOuter.getHeight() / 2.0);
         objOuter.setAngle(objInner.getAngle());
     }
-
+    //looks good
     private static void lockrotateObjAroundObjtop(ImageObject objOuter, ImageObject objInner, double dist) {
         objOuter.moveto(objInner.getX() + objOuter.getWidth() + (objInner.getWidth() / 2.0) + (dist + objInner.getWidth() / 2.0) * Math.cos((objInner.getAngle() + pi/2.0)) / 2.0 , objInner.getY() - objOuter.getHeight() + (dist + objInner.getHeight() / 2.0) * Math.sin(objInner.getAngle()/ 2.0));
         objOuter.setAngle(objInner.getAngle());
     }
-
+    //looks good
     private static AffineTransformOp rotateImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform. getRotateInstance(-obj.getAngle() , obj.getWidth()/2.0, obj.getHeight()/2.0) ;
         AffineTransformOp atop = new AffineTransformOp(at,AffineTransformOp.TYPE_BILINEAR);
         return atop;
     }
-
+    //looks good
     private static AffineTransformOp spinImageObject(ImageObject obj) {
         AffineTransform at = AffineTransform.getRotateInstance(-obj.getInternalAngle(), obj.getWidth()/2.0, obj.getHeight()/2.0);
         AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
@@ -522,7 +527,7 @@ public class Asteroids {
         Graphics2D g2D = (Graphics2D) g;
         g2D.drawImage(rotateImageObject(p1).filter(player, null), (int)(p1.getX() + 0.5), (int)(p1.getY()+ 0.5), null);
     }
-
+    //TODO check on the math here
     private static void flameDraw() {
         if(upPressed == true){
             Graphics g = appFrame.getGraphics();
@@ -740,7 +745,7 @@ public class Asteroids {
             level = decodeLevel(textLevel);
         }
     }
-
+    //TODO check on the math here
     private static Boolean isInside (double p1x, double p1y , double p2x1, double p2y1, double p2x2, double p2y2){
         Boolean ret = false;
         if(p1x > p2x1 && p1x < p2x2){
@@ -761,7 +766,7 @@ public class Asteroids {
         }
         return ret;
     }
-
+    //TODO check on the math here
     private static Boolean collisionOccursCoordinates (double p1x1, double p1y1, double p1x2, double p1y2, double p2x1, double p2y1, double p2x2, double p2y2){
         Boolean ret = false;
         if(isInside(p1x1,p1y1,p2x1,p2y1,p2x2,p2y2) == true){
@@ -980,10 +985,9 @@ public class Asteroids {
 
         JPanel myPanel = new JPanel();
 
-        String[] levels = {"One" + "Two" + "Three" +
-                "Four" + "Five" + "Six" + "Seven" + "Eight" + "Nine" + "Ten"};
+        String[] levels = {"One", "Two", "Three", "Four",  "Five",  "Six",  "Seven",  "Eight",  "Nine",  "Ten"};
         JComboBox<String> levelMenu = new JComboBox<String>(levels);
-        levelMenu.setSelectedIndex(2);
+        levelMenu.setSelectedIndex(1);
         levelMenu.addActionListener(new GameLevel());
         myPanel.add(levelMenu);
 
@@ -995,11 +999,11 @@ public class Asteroids {
         quitButton.addActionListener(new QuitGame());
         myPanel.add(quitButton);
 
-        bindKey(myPanel, "UP");
-        bindKey(myPanel, "DOWN");
-        bindKey(myPanel, "LEFT");
-        bindKey(myPanel, "RIGHT");
-        bindKey(myPanel, "F");
+        bindKey(myPanel, "UP" );
+        bindKey(myPanel, "DOWN" );
+        bindKey(myPanel, "LEFT" );
+        bindKey(myPanel, "RIGHT" );
+        bindKey(myPanel, "F" );
 
         appFrame.getContentPane().add(myPanel, "South");
         appFrame.setVisible(true);
