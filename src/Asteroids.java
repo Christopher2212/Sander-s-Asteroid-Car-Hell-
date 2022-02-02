@@ -936,7 +936,7 @@ public class Asteroids {
 
         public void rotate(double angleinput) {
             angle = angle + angleinput;
-            while ( angle < twoPi) {
+            while ( angle > twoPi) {
                 angle = angle - twoPi;
             }
 
