@@ -44,42 +44,41 @@ public class Asteroids {
     public static void setup() {
         appFrame = new JFrame("Asteroids");
         XOFFSET = 0;
-        YOFFSET = 40;
-        // Changed the window height and width for png
-        WINWIDTH = 500;
-        WINHEIGHT = 500;
+        YOFFSET = 0;
+        WINWIDTH = 480;
+        WINHEIGHT = 480;
         pi = 3.14159265358979;
         twoPi = 2.0 * 3.14159265358979;
         endgame = false;
+
         // TODO: Make sure that entities' width and height match the png width and height
+        p2width = 25.0;
+        p2height = 25.0;
+        p2originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
+        p2originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
+
         p1width = 25.0;
         p1height = 25.0;
         p1originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p1originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
+
         explosionlifetime = new Long(800);
-        flamecount = 1;
-        flamewidth = 12.0;
+
+        flamewidth = 5;
         expcount = 1;
         level = 3;
 
         try { //TODO add pictures and pathnames to said pictures
             background = ImageIO.read(new File("src/pictures/Background.png"));
-            player = ImageIO.read(new File("src/pictures/PlayerShip.png"));
-            flame1 = ImageIO.read(new File("src/pictures/Flame 1.png"));
-            flame2 = ImageIO.read(new File("src/pictures/Flame 2.png"));
-            flame3 = ImageIO.read(new File("src/pictures/Flame 3.png"));
-            flame4 = ImageIO.read(new File("src/pictures/BackupFlame1.png"));
-            flame5 = ImageIO.read(new File("src/pictures/BackupFlame2.png"));
-            flame6 = ImageIO.read(new File("src/pictures/BackupFlame3.png"));
-            enemyShip = ImageIO.read(new File("src/pictures/EnemyShip.png"));
+            player = ImageIO.read(new File("src/pictures/player1.png"));
+            player2 = ImageIO.read(new File("src/pictures/player2.png"));
+            frontLight = ImageIO.read(new File("src/pictures/carLights.png"));
             exp1 = ImageIO.read(new File("src/pictures/Explosion1.png"));
             exp2 = ImageIO.read(new File("src/pictures/Explosion2.png"));
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
-
 
     }
 
@@ -88,9 +87,10 @@ public class Asteroids {
             while (endgame == false) {
                 backgroundDraw();
                 explosionsDraw();
-                enemyDraw();
+                player2Draw();
                 playerDraw();
                 flameDraw();
+                flameDrawP2();
                 try {
                     Thread.sleep(32);
                 } catch (InterruptedException e) {
@@ -99,8 +99,6 @@ public class Asteroids {
             }
         }
     }
-
-
 
     private static class PlayerMover implements Runnable {
         public PlayerMover() {
@@ -144,26 +142,70 @@ public class Asteroids {
         private double rotatestep;
     }
 
-    private static class FlameMover implements Runnable {
-        public FlameMover() {
-            gap = 7.0;
+    private static class Player2Mover implements Runnable {
+        public Player2Mover() {
+            velocitystep = 0.01;
+            rotatestep = 0.01;
         }
         public void run() {
             while (endgame == false) {
-                lockrotateObjAroundObjbottom(flames, p1, gap);
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+
+                }
+                if (upPressedP2 == true) {
+                    p2velocity = p2velocity + velocitystep;
+                }
+                if (downPressedP2 == true) {
+                    p2velocity = p2velocity - velocitystep;
+                }
+                if (leftPressedP2 == true) {
+                    if (p2velocity < 0) {
+                        p2.rotate(-rotatestep);
+                    } else {
+                        p2.rotate(rotatestep);
+                    }
+                }
+                if (rightPressedP2 == true) {
+                    if (p2velocity < 0) {
+                        p2.rotate(rotatestep);
+                    } else {
+                        p2.rotate(-rotatestep);
+                    }
+                }
+                p2.move(-p2velocity * Math.cos(p2.getAngle() - pi / 2.0), p2velocity * Math.sin(p2.getAngle() - pi / 2.0));
+                p2.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
             }
         }
 
+        private double velocitystep;
+        private double rotatestep;
+    }
+
+    private static class FlameMover implements Runnable {
+        public FlameMover() {
+            gap = 0.0;
+        }
+        public void run() {
+            while (endgame == false) {
+                lockrotateObjAroundObjtop(flameP1, p1, gap);
+            }
+        }
         private double gap;
     }
 
-
-
-    private static class EnemyShipMover implements Runnable {
-        // TODO: INSERT P2 MOVER HERE
-
+    private static class FlameMoverP2 implements Runnable {
+        public FlameMoverP2() {
+            gap = 0.0;
+        }
+        public void run() {
+            while (endgame == false) {
+                lockrotateObjAroundObjtop(flameP2, p2, gap);
+            }
+        }
+        private double gap;
     }
-
     private static class CollisionChecker implements Runnable {
         public void run() {
             //TODO Implement Zelda collisions
@@ -177,14 +219,6 @@ public class Asteroids {
         }
     }
 
-    private static void generateEnemy() { //TODO Make into generateP2 method
-        try {
-            Random randomNumbers = new Random(LocalTime.now().getNano());
-            enemy = new ImageObject(XOFFSET + (double) (randomNumbers.nextInt(WINWIDTH)), YOFFSET + (double) (randomNumbers.nextInt(WINHEIGHT)), 28.0, 16.0, (double) (randomNumbers.nextInt(360)));
-        } catch (java.lang.IllegalArgumentException jliae) {
-            jliae.printStackTrace();
-        }
-    }
     //looks good
     private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
         objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.00) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0, objInner.getY() + (dist + objInner.getHeight() /2.0)*Math.sin(-objInner.getAngle() + pi/2.0) + objOuter.getHeight() / 2.0);
@@ -214,18 +248,11 @@ public class Asteroids {
         g2D.drawImage(background, XOFFSET, YOFFSET, null);
     }
 
-    private static void enemyDraw() {
-        if(enemyAlive == true){
-            try{
-                Graphics g = appFrame.getGraphics();
-                Graphics2D g2D = (Graphics2D) g;
-                g2D.drawImage(enemyShip, (int)(enemy.getX() + 0.5), (int)(enemy.getY() + 0.5), null);
-            }catch(java.lang.NullPointerException jlnpe){
-                jlnpe.printStackTrace();
-            }
-        }
+    private static void player2Draw() {
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(rotateImageObject(p2).filter(player2, null), (int)(p2.getX() + 0.5), (int)(p2.getY()+ 0.5), null);
     }
-
 
     private static void playerDraw() {
         Graphics g = appFrame.getGraphics();
@@ -233,36 +260,22 @@ public class Asteroids {
         g2D.drawImage(rotateImageObject(p1).filter(player, null), (int)(p1.getX() + 0.5), (int)(p1.getY()+ 0.5), null);
     }
 
-    //TODO check on the math here
-    private static void flameDraw() {
-        if(upPressed == true){
+    private static void flameDraw(){
+        if (p1velocity > 0) {
             Graphics g = appFrame.getGraphics();
             Graphics2D g2D = (Graphics2D) g;
-            if(flamecount == 1){
-                g2D.drawImage(rotateImageObject(flames).filter(flame1, null), (int)(flames.getX() + 0.5), (int)(flames.getY()+ 0.5), null);
-                flamecount = 1 + ((flamecount + 1)%3);
-            }else if(flamecount == 2){
-                g2D.drawImage(rotateImageObject(flames).filter(flame2, null), (int)(flames.getX() + 0.5), (int)(flames.getY()+ 0.5), null);
-                flamecount = 1 + ((flamecount + 1)%3);
-            }else if(flamecount == 3){
-                g2D.drawImage(rotateImageObject(flames).filter(flame3, null), (int)(flames.getX() + 0.5), (int)(flames.getY()+ 0.5), null);
-                flamecount = 1 + ((flamecount + 1)%3);
-            }
+            g2D.drawImage(rotateImageObject(flameP1).filter(frontLight, null), (int)(flameP1.getX() + 0.5), (int)(flameP1.getY()+ 0.5), null);
         }
-        if(downPressed == true){
+
+    }
+
+    private static void flameDrawP2(){
+        if (p2velocity > 0) {
             Graphics g = appFrame.getGraphics();
             Graphics2D g2D = (Graphics2D) g;
-            if(flamecount == 1){
-                g2D.drawImage(rotateImageObject(flames).filter(flame4, null), (int)(flames.getX() + 0.5), (int)(flames.getY()+ 0.5), null);
-                flamecount = 1 + ((flamecount + 1)%3);
-            }else if(flamecount == 2){
-                g2D.drawImage(rotateImageObject(flames).filter(flame5, null), (int)(flames.getX() + 0.5), (int)(flames.getY()+ 0.5), null);
-                flamecount = 1 + ((flamecount + 1)%3);
-            }else if(flamecount == 3){
-                g2D.drawImage(rotateImageObject(flames).filter(flame6, null), (int)(flames.getX() + 0.5), (int)(flames.getY()+ 0.5), null);
-                flamecount = 1 + ((flamecount + 1)%3);
-            }
+            g2D.drawImage(rotateImageObject(flameP2).filter(frontLight, null), (int)(flameP2.getX() + 0.5), (int)(flameP2.getY()+ 0.5), null);
         }
+
     }
 
     private static void explosionsDraw(){
@@ -310,7 +323,16 @@ public class Asteroids {
                 rightPressed = true;
             }
             if(action.equals("W")){
-
+                upPressedP2 = true;
+            }
+            if(action.equals("S")){
+                downPressedP2 = true;
+            }
+            if(action.equals("A")){
+                leftPressedP2 = true;
+            }
+            if(action.equals("D")){
+                rightPressedP2 = true;
             }
         }
         private String action;
@@ -337,7 +359,18 @@ public class Asteroids {
             if(action.equals("RIGHT")){
                 rightPressed = false;
             }
-
+            if(action.equals("W")){
+                upPressedP2 = false;
+            }
+            if(action.equals("S")){
+                downPressedP2 = false;
+            }
+            if(action.equals("A")){
+                leftPressedP2 = false;
+            }
+            if(action.equals("D")){
+                rightPressedP2 = false;
+            }
         }
         private String action;
     }
@@ -362,13 +395,15 @@ public class Asteroids {
             leftPressedP2 = false;
             rightPressedP2 = false;
 
-            p2 = new ImageObject(p1originalX, p1originalY, p1width, p1height, 0.0); // TODO move the enemy beside the player!
             p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, 0.0);
+            p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, 0.0);
             p1velocity = 0.0;
-            generateEnemy(); //TODO rename to generateP2
-            flames = new ImageObject(p1originalX + p1width/2.0, p1originalY+p1height, flamewidth, flamewidth, 0.0);
-            flamecount = 1;
+            p2velocity = 0.0;
+
+            flameP1 = new ImageObject(p1originalX + p1width/2.0, p1originalY+p1height, flamewidth, flamewidth, 0.0);
+            flameP2 = new ImageObject(p2originalX + p2width/2.0, p2originalY+p2height, flamewidth, flamewidth, 0.0);
             expcount = 1;
+
             try{
                 Thread.sleep(50);
             }catch (InterruptedException ie){
@@ -382,16 +417,18 @@ public class Asteroids {
             Thread t1 = new Thread(new Animate());
             Thread t2 = new Thread(new PlayerMover());
             Thread t3 = new Thread(new FlameMover());
-            Thread t6 = new Thread(new EnemyShipMover());
-            Thread t8 = new Thread(new CollisionChecker());
-            Thread t9 = new Thread(new WinChecker());
+            Thread t7 = new Thread(new FlameMoverP2());
+            Thread t4 = new Thread(new Player2Mover());
+            Thread t5 = new Thread(new CollisionChecker());
+            Thread t6 = new Thread(new WinChecker());
 
             t1.start();
             t2.start();
             t3.start();
+            t4.start();
+            t5.start();
             t6.start();
-            t8.start();
-            t9.start();
+            t7.start();
         }
     }
 
@@ -663,7 +700,7 @@ public class Asteroids {
     public static void main(String[] args) {
         setup();
         appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appFrame.setSize(501, 585);
+        appFrame.setSize(480, 480);
 
         JPanel myPanel = new JPanel();
 
@@ -697,9 +734,9 @@ public class Asteroids {
     }
 
     private static Boolean endgame;
-    private static Boolean enemyAlive;
     private static BufferedImage background;
     private static BufferedImage player;
+    private static BufferedImage player2;
 
     private static Boolean upPressed;
     private static Boolean downPressed;
@@ -726,17 +763,9 @@ public class Asteroids {
     private static double p2originalY;
     private static double p2velocity;
 
-    private static ImageObject enemy;
-    private static BufferedImage enemyShip;
-
-    private static ImageObject flames;
-    private static BufferedImage flame1;
-    private static BufferedImage flame2;
-    private static BufferedImage flame3;
-    private static BufferedImage flame4;
-    private static BufferedImage flame5;
-    private static BufferedImage flame6;
-    private static int flamecount;
+    private static ImageObject flameP1;
+    private static ImageObject flameP2;
+    private static BufferedImage frontLight;
     private static double flamewidth;
     private static int level;
 
