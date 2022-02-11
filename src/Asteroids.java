@@ -1,3 +1,5 @@
+import java.awt.*;
+import java.time.Instant;
 import java.util.Vector;
 import java.util.Random;
 
@@ -21,14 +23,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 
 /**
- *TAG SOME GIT COMMANDS HERE OR LINKS TO HELPFUL SITES/VIDEOS
+ * TAG SOME GIT COMMANDS HERE OR LINKS TO HELPFUL SITES/VIDEOS
  */
 
 /**
@@ -63,10 +62,11 @@ public class Asteroids {
         p1originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
 
         explosionlifetime = new Long(800);
-
-        flamewidth = 5;
+        flamewidth = 52;
         expcount = 1;
         level = 3;
+
+        walls.add(new ImageObject(0,35,150,5, 0.0));
 
         try { //TODO add pictures and pathnames to said pictures
             background = ImageIO.read(new File("src/pictures/Background.png"));
@@ -113,12 +113,19 @@ public class Asteroids {
                 } catch (InterruptedException e) {
 
                 }
-                if (upPressed == true) {
+
+                if (upPressed == true && p1velocity <= 3) { //This allows more or less control over max velocity
                     p1velocity = p1velocity + velocitystep;
+                }else{
+                    p1velocity = p1velocity;
                 }
-                if (downPressed == true) {
+
+                if (downPressed == true && p1velocity >= -3) {
                     p1velocity = p1velocity - velocitystep;
+                }else{
+                    p1velocity = p1velocity;
                 }
+
                 if (leftPressed == true) {
                     if (p1velocity < 0) {
                         p1.rotate(-rotatestep);
@@ -126,6 +133,7 @@ public class Asteroids {
                         p1.rotate(rotatestep);
                     }
                 }
+
                 if (rightPressed == true) {
                     if (p1velocity < 0) {
                         p1.rotate(rotatestep);
@@ -133,6 +141,8 @@ public class Asteroids {
                         p1.rotate(-rotatestep);
                     }
                 }
+
+                p1.updateBounce();
                 p1.move(-p1velocity * Math.cos(p1.getAngle() - pi / 2.0), p1velocity * Math.sin(p1.getAngle() - pi / 2.0));
                 p1.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
             }
@@ -147,6 +157,7 @@ public class Asteroids {
             velocitystep = 0.01;
             rotatestep = 0.01;
         }
+
         public void run() {
             while (endgame == false) {
                 try {
@@ -154,12 +165,19 @@ public class Asteroids {
                 } catch (InterruptedException e) {
 
                 }
-                if (upPressedP2 == true) {
+
+                if (upPressedP2 == true && p2velocity <= 3) { //This allows more or less control over max velocity
                     p2velocity = p2velocity + velocitystep;
+                }else{
+                    p2velocity = p2velocity;
                 }
-                if (downPressedP2 == true) {
+
+                if (downPressedP2 == true && p2velocity >= -3) {
                     p2velocity = p2velocity - velocitystep;
+                }else{
+                    p2velocity = p2velocity;
                 }
+
                 if (leftPressedP2 == true) {
                     if (p2velocity < 0) {
                         p2.rotate(-rotatestep);
@@ -174,6 +192,7 @@ public class Asteroids {
                         p2.rotate(-rotatestep);
                     }
                 }
+                p2.updateBounce();
                 p2.move(-p2velocity * Math.cos(p2.getAngle() - pi / 2.0), p2velocity * Math.sin(p2.getAngle() - pi / 2.0));
                 p2.screenWrap(XOFFSET, XOFFSET + WINWIDTH, YOFFSET, YOFFSET + WINHEIGHT);
             }
@@ -187,11 +206,13 @@ public class Asteroids {
         public FlameMover() {
             gap = 0.0;
         }
+
         public void run() {
             while (endgame == false) {
                 lockrotateObjAroundObjtop(flameP1, p1, gap);
             }
         }
+
         private double gap;
     }
 
@@ -199,45 +220,86 @@ public class Asteroids {
         public FlameMoverP2() {
             gap = 0.0;
         }
+
         public void run() {
             while (endgame == false) {
                 lockrotateObjAroundObjtop(flameP2, p2, gap);
             }
         }
+
         private double gap;
     }
+
     private static class CollisionChecker implements Runnable {
         public void run() {
-            //TODO Implement Zelda collisions
+            while(endgame == false){
+                for(int i = 0; i < walls.size(); i++){
+                    if(collisionOccurs(p1,walls.elementAt(i))){
+                        p1.setBounce(true);
+                    }
+                }
+                if(collisionOccurs(p1,checkPoint)){
+                    p1HitCheck = true;
+                }
+                if (collisionOccurs(p1,finalPoint) && p1HitCheck){
+                    p1lapsTaken++;
+                    p1HitCheck = false;
+                }
+            }
         }
+    }
 
+    private static class CollisionCheckerP2 implements Runnable {
+        public void run() {
+            while(endgame == false){
+                for(int i = 0; i < walls.size(); i++){
+                    if(collisionOccurs(p2,walls.elementAt(i))){
+                        p2.setBounce(true);
+                    }
+                }
+                if(collisionOccurs(p2,checkPoint)){
+                    p2HitCheck = true;
+                }
+                if (collisionOccurs(p2,finalPoint) && p2HitCheck){
+                    p2lapsTaken++;
+                    p2HitCheck = false;
+                }
+            }
+        }
     }
 
     private static class WinChecker implements Runnable {
         public void run() {
-            //TODO Implement a new win checker!
+            if(p1lapsTaken == 2){
+                System.out.println("Player One Wins!");
+                endgame = true;
+            }
+            if(p2lapsTaken == 2){
+                System.out.println("Player Two Wins!");
+                endgame = true;
+            }
         }
     }
 
-    //looks good
+
     private static void lockrotateObjAroundObjbottom(ImageObject objOuter, ImageObject objInner, double dist) {
-        objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.00) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0, objInner.getY() + (dist + objInner.getHeight() /2.0)*Math.sin(-objInner.getAngle() + pi/2.0) + objOuter.getHeight() / 2.0);
+        objOuter.moveto(objInner.getX() + (dist + objInner.getWidth() / 2.00) * Math.cos(-objInner.getAngle() + pi / 2.0) + objOuter.getWidth() / 2.0, objInner.getY() + (dist + objInner.getHeight() / 2.0) * Math.sin(-objInner.getAngle() + pi / 2.0) + objOuter.getHeight() / 2.0);
         objOuter.setAngle(objInner.getAngle());
     }
-    //looks good
+
     private static void lockrotateObjAroundObjtop(ImageObject objOuter, ImageObject objInner, double dist) {
-        objOuter.moveto(objInner.getX() + objOuter.getWidth() + (objInner.getWidth() / 2.0) + (dist + objInner.getWidth() / 2.0) * Math.cos((objInner.getAngle() + pi/2.0)) / 2.0 , objInner.getY() - objOuter.getHeight() + (dist + objInner.getHeight() / 2.0) * Math.sin(objInner.getAngle()/ 2.0));
+        objOuter.moveto(objInner.getX() + objOuter.getWidth() + (objInner.getWidth() / 2.0) + (dist + objInner.getWidth() / 2.0) * Math.cos((objInner.getAngle() + pi / 2.0)) / 2.0, objInner.getY() - objOuter.getHeight() + (dist + objInner.getHeight() / 2.0) * Math.sin(objInner.getAngle() / 2.0));
         objOuter.setAngle(objInner.getAngle());
     }
-    //looks good
+
     private static AffineTransformOp rotateImageObject(ImageObject obj) {
-        AffineTransform at = AffineTransform. getRotateInstance(-obj.getAngle() , obj.getWidth()/2.0, obj.getHeight()/2.0) ;
-        AffineTransformOp atop = new AffineTransformOp(at,AffineTransformOp.TYPE_BILINEAR);
+        AffineTransform at = AffineTransform.getRotateInstance(-obj.getAngle(), obj.getWidth() / 2.0, obj.getHeight() / 2.0);
+        AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         return atop;
     }
-    //looks good
+
     private static AffineTransformOp spinImageObject(ImageObject obj) {
-        AffineTransform at = AffineTransform.getRotateInstance(-obj.getInternalAngle(), obj.getWidth()/2.0, obj.getHeight()/2.0);
+        AffineTransform at = AffineTransform.getRotateInstance(-obj.getInternalAngle(), obj.getWidth() / 2.0, obj.getHeight() / 2.0);
         AffineTransformOp atop = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         return atop;
     }
@@ -251,138 +313,134 @@ public class Asteroids {
     private static void player2Draw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-        g2D.drawImage(rotateImageObject(p2).filter(player2, null), (int)(p2.getX() + 0.5), (int)(p2.getY()+ 0.5), null);
+        g2D.drawImage(rotateImageObject(p2).filter(player2, null), (int) (p2.getX() + 0.5), (int) (p2.getY() + 0.5), null);
     }
 
     private static void playerDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-        g2D.drawImage(rotateImageObject(p1).filter(player, null), (int)(p1.getX() + 0.5), (int)(p1.getY()+ 0.5), null);
+        g2D.drawImage(rotateImageObject(p1).filter(player, null), (int) (p1.getX() + 0.5), (int) (p1.getY() + 0.5), null);
     }
 
-    private static void flameDraw(){
+    private static void flameDraw() {
         if (p1velocity > 0) {
             Graphics g = appFrame.getGraphics();
             Graphics2D g2D = (Graphics2D) g;
-            g2D.drawImage(rotateImageObject(flameP1).filter(frontLight, null), (int)(flameP1.getX() + 0.5), (int)(flameP1.getY()+ 0.5), null);
+            g2D.drawImage(rotateImageObject(flameP1).filter(frontLight, null), (int) (flameP1.getX() + 0.5), (int) (flameP1.getY() + 0.5), null);
         }
 
     }
 
-    private static void flameDrawP2(){
+    private static void flameDrawP2() {
         if (p2velocity > 0) {
             Graphics g = appFrame.getGraphics();
             Graphics2D g2D = (Graphics2D) g;
-            g2D.drawImage(rotateImageObject(flameP2).filter(frontLight, null), (int)(flameP2.getX() + 0.5), (int)(flameP2.getY()+ 0.5), null);
+            g2D.drawImage(rotateImageObject(flameP2).filter(frontLight, null), (int) (flameP2.getX() + 0.5), (int) (flameP2.getY() + 0.5), null);
         }
 
     }
 
-    private static void explosionsDraw(){
-        Graphics g = appFrame.getGraphics();
-        Graphics2D g2D = (Graphics2D) g;
-        for(int i = 0; i < explosions.size(); i++){
-            if(System.currentTimeMillis() - explosionsTimes.elementAt(i) > explosionlifetime){
-                try{
-                    explosions.remove(i);
-                    explosionsTimes.remove(i);
-                }catch(java.lang.NullPointerException jlnpe){
-                    explosions.clear();
-                    explosionsTimes.clear();
-                }
-            }else{
-                if(expcount == 1){
-                    g2D.drawImage(exp1, (int)(explosions.elementAt(i).getX() + 0.5), (int)(explosions.elementAt(i).getY() + 0.5), null);
-                    expcount = 2;
-                }else if(expcount == 2){
-                    g2D.drawImage(exp2, (int)(explosions.elementAt(i).getX() + 0.5), (int)(explosions.elementAt(i).getY() + 0.5), null);
-                    expcount = 1;
-                }
-            }
-        }
+    private static void explosionsDraw() {
+        // tied to line 39 jtext
+        // line 4 has a library for time
+            Graphics g = appFrame.getGraphics();
+            Graphics2D g2D = (Graphics2D) g;
+            g2D.setColor(Color.white);
+            g2D.scale(2,2);
+            Instant start = Instant.now();
+//          Instant diff = start - Instant.now();
+            String time = start.toString();
+//          String time = (Instant.now() - start).toString();
+            g2D.drawString(time, 5, 30);
+            // time passes
     }
 
-    private static class KeyPressed extends AbstractAction{
-        public KeyPressed(){
+    private static class KeyPressed extends AbstractAction {
+        public KeyPressed() {
             action = "";
         }
-        public KeyPressed(String input){
+
+        public KeyPressed(String input) {
             action = input;
         }
-        public void actionPerformed(ActionEvent e){
-            if(action.equals("UP")){
+
+        public void actionPerformed(ActionEvent e) {
+            if (action.equals("UP")) {
                 upPressed = true;
             }
-            if(action.equals("DOWN")){
+            if (action.equals("DOWN")) {
                 downPressed = true;
             }
-            if(action.equals("LEFT")){
+            if (action.equals("LEFT")) {
                 leftPressed = true;
             }
-            if(action.equals("RIGHT")){
+            if (action.equals("RIGHT")) {
                 rightPressed = true;
             }
-            if(action.equals("W")){
+            if (action.equals("W")) {
                 upPressedP2 = true;
             }
-            if(action.equals("S")){
+            if (action.equals("S")) {
                 downPressedP2 = true;
             }
-            if(action.equals("A")){
+            if (action.equals("A")) {
                 leftPressedP2 = true;
             }
-            if(action.equals("D")){
+            if (action.equals("D")) {
                 rightPressedP2 = true;
             }
         }
+
         private String action;
     }
 
-    public static class KeyReleased extends AbstractAction{
-        public KeyReleased(){
+    public static class KeyReleased extends AbstractAction {
+        public KeyReleased() {
             action = "";
         }
-        public KeyReleased(String input){
+
+        public KeyReleased(String input) {
             action = input;
         }
 
-        public void actionPerformed(ActionEvent e ){
-            if(action.equals("UP")){
+        public void actionPerformed(ActionEvent e) {
+            if (action.equals("UP")) {
                 upPressed = false;
             }
-            if(action.equals("DOWN")){
+            if (action.equals("DOWN")) {
                 downPressed = false;
             }
-            if(action.equals("LEFT")){
+            if (action.equals("LEFT")) {
                 leftPressed = false;
             }
-            if(action.equals("RIGHT")){
+            if (action.equals("RIGHT")) {
                 rightPressed = false;
             }
-            if(action.equals("W")){
+            if (action.equals("W")) {
                 upPressedP2 = false;
             }
-            if(action.equals("S")){
+            if (action.equals("S")) {
                 downPressedP2 = false;
             }
-            if(action.equals("A")){
+            if (action.equals("A")) {
                 leftPressedP2 = false;
             }
-            if(action.equals("D")){
+            if (action.equals("D")) {
                 rightPressedP2 = false;
             }
         }
+
         private String action;
     }
 
-    private static class QuitGame implements ActionListener{
-        public void actionPerformed(ActionEvent e){
+    private static class QuitGame implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
             endgame = true;
         }
     }
 
-    private static class StartGame implements ActionListener{
-        public void actionPerformed (ActionEvent e){
+    private static class StartGame implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
             endgame = true;
 
             upPressed = false;
@@ -400,13 +458,28 @@ public class Asteroids {
             p1velocity = 0.0;
             p2velocity = 0.0;
 
-            flameP1 = new ImageObject(p1originalX + p1width/2.0, p1originalY+p1height, flamewidth, flamewidth, 0.0);
-            flameP2 = new ImageObject(p2originalX + p2width/2.0, p2originalY+p2height, flamewidth, flamewidth, 0.0);
+            p1.setLastposx(p1originalX);
+            p1.setLastposy(p1originalY);
+
+            p2.setLastposx(p2originalX);
+            p2.setLastposy(p1originalY);
+
+            p1HitCheck = false;
+            p2HitCheck = false;
+
+            p1lapsTaken = 0;
+            p2lapsTaken = 0;
+
+
+            checkPoint = new ImageObject(145,145,.5,.5,0);
+            finalPoint = new ImageObject(145,145,.5,.5,0);
+            flameP1 = new ImageObject(p1originalX + p1width / 2.0, p1originalY + p1height, flamewidth / 2, flamewidth, 0.0);
+            flameP2 = new ImageObject(p2originalX + p2width / 2.0, p2originalY + p2height, flamewidth, flamewidth, 0.0);
             expcount = 1;
 
-            try{
+            try {
                 Thread.sleep(50);
-            }catch (InterruptedException ie){
+            } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
 
@@ -417,10 +490,11 @@ public class Asteroids {
             Thread t1 = new Thread(new Animate());
             Thread t2 = new Thread(new PlayerMover());
             Thread t3 = new Thread(new FlameMover());
-            Thread t7 = new Thread(new FlameMoverP2());
             Thread t4 = new Thread(new Player2Mover());
             Thread t5 = new Thread(new CollisionChecker());
             Thread t6 = new Thread(new WinChecker());
+            Thread t7 = new Thread(new FlameMoverP2());
+            Thread t8 = new Thread(new CollisionCheckerP2());
 
             t1.start();
             t2.start();
@@ -429,125 +503,132 @@ public class Asteroids {
             t5.start();
             t6.start();
             t7.start();
+            t8.start();
         }
     }
 
-    private static class GameLevel implements ActionListener{
-        public int decodeLevel(String input){
+    private static class GameLevel implements ActionListener {
+        public int decodeLevel(String input) {
             int ret = 1; // default behavior is to start at lv 3
-            if(input.equals("One")){
+            if (input.equals("One")) {
                 ret = 1;
-            }else if(input.equals("Two")){
+            } else if (input.equals("Two")) {
                 ret = 2;
-            }else if(input.equals("Three")){
+            } else if (input.equals("Three")) {
                 ret = 3;
-            }else if(input.equals("Four")){
+            } else if (input.equals("Four")) {
                 ret = 4;
-            }else if(input.equals("Five")){
+            } else if (input.equals("Five")) {
                 ret = 5;
-            }else if(input.equals("Six")){
+            } else if (input.equals("Six")) {
                 ret = 6;
-            }else if(input.equals("Seven")){
+            } else if (input.equals("Seven")) {
                 ret = 7;
-            }else if(input.equals("Eight")){
+            } else if (input.equals("Eight")) {
                 ret = 8;
-            }else if(input.equals("Nine")){
+            } else if (input.equals("Nine")) {
                 ret = 9;
-            }else if(input.equals("Ten")){
+            } else if (input.equals("Ten")) {
                 ret = 10;
             }
             return ret;
         }
-        public void actionPerformed(ActionEvent e){
+
+        public void actionPerformed(ActionEvent e) {
             JComboBox cb = (JComboBox) e.getSource();
-            String textLevel = (String)cb.getSelectedItem();
+            String textLevel = (String) cb.getSelectedItem();
             level = decodeLevel(textLevel);
         }
     }
 
-    private static Boolean isInside (double p1x, double p1y , double p2x1, double p2y1, double p2x2, double p2y2){
+    private static Boolean isInside(double p1x, double p1y, double p2x1, double p2y1, double p2x2, double p2y2) {
         Boolean ret = false;
-        if(p1x > p2x1 && p1x < p2x2){
-            if(p1y > p2y1 && p1y < p2y2){
+        if (p1x > p2x1 && p1x < p2x2) {
+            if (p1y > p2y1 && p1y < p2y2) {
                 ret = true;
             }
-            if(p1y > p2y2 && p1y < p2y1){
+            if (p1y > p2y2 && p1y < p2y1) {
                 ret = true;
             }
         }
-        if(p1x > p2x2 && p1x < p2x1){
-            if(p1y > p2y1 && p1y < p2y2){
+        if (p1x > p2x2 && p1x < p2x1) {
+            if (p1y > p2y1 && p1y < p2y2) {
                 ret = true;
             }
-            if(p1y > p2y2 && p1y < p2y1){
+            if (p1y > p2y2 && p1y < p2y1) {
                 ret = true;
             }
         }
         return ret;
     }
 
-    private static Boolean collisionOccursCoordinates (double p1x1, double p1y1, double p1x2, double p1y2, double p2x1, double p2y1, double p2x2, double p2y2){
+    private static Boolean collisionOccursCoordinates(double p1x1, double p1y1, double p1x2, double p1y2, double p2x1, double p2y1, double p2x2, double p2y2) {
         Boolean ret = false;
-        if(isInside(p1x1,p1y1,p2x1,p2y1,p2x2,p2y2) == true){
+        if (isInside(p1x1, p1y1, p2x1, p2y1, p2x2, p2y2) == true) {
             ret = true;
         }
-        if(isInside(p1x1,p1y2,p2x1,p2y1,p2x2,p2y2) == true){
+        if (isInside(p1x1, p1y2, p2x1, p2y1, p2x2, p2y2) == true) {
             ret = true;
         }
-        if(isInside(p1x2,p1y1,p2x1,p2y1,p2x2,p2y2) == true){
+        if (isInside(p1x2, p1y1, p2x1, p2y1, p2x2, p2y2) == true) {
             ret = true;
         }
-        if(isInside(p1x2,p1y2,p2x1,p2y1,p2x2,p2y2) == true){
+        if (isInside(p1x2, p1y2, p2x1, p2y1, p2x2, p2y2) == true) {
             ret = true;
         }
-        if(isInside(p2x1,p2y1,p1x1,p1y1,p1x2,p1y2) == true){
+        if (isInside(p2x1, p2y1, p1x1, p1y1, p1x2, p1y2) == true) {
             ret = true;
         }
-        if(isInside(p2x1,p2y2,p1x1,p1y1,p1x2,p1y2) == true){
+        if (isInside(p2x1, p2y2, p1x1, p1y1, p1x2, p1y2) == true) {
             ret = true;
         }
-        if(isInside(p2x2,p2y1,p1x1,p1y1,p1x2,p1y2) == true){
+        if (isInside(p2x2, p2y1, p1x1, p1y1, p1x2, p1y2) == true) {
             ret = true;
         }
-        if(isInside(p2x2,p2y2,p1x1,p1y1,p1x2,p1y2) == true){
+        if (isInside(p2x2, p2y2, p1x1, p1y1, p1x2, p1y2) == true) {
             ret = true;
         }
         return ret;
     }
 
-    private static Boolean collisionOccurs (ImageObject obj1 ,ImageObject obj2){
+    private static Boolean collisionOccurs(ImageObject obj1, ImageObject obj2) {
         Boolean ret = false;
-        if(collisionOccursCoordinates(obj1.getX(), obj1.getY(), obj1.getX() + obj1.getWidth(), obj1.getY() + obj1.getHeight(), obj2.getX(), obj2.getY(), obj2.getX() + obj2.getWidth(),obj2.getY() + obj2.getHeight()) == true){
+        if (collisionOccursCoordinates(obj1.getX(), obj1.getY(), obj1.getX() + obj1.getWidth(), obj1.getY() + obj1.getHeight(), obj2.getX(), obj2.getY(), obj2.getX() + obj2.getWidth(), obj2.getY() + obj2.getHeight()) == true) {
             ret = true;
         }
         return ret;
     }
 
-    private static class ImageObject{
-        public ImageObject (){}
+    private static class ImageObject {
+        public ImageObject() {
+            bounce = false;
+        }
 
-        public ImageObject (double xinput , double yinput , double xwidthinput , double yheightinput , double angleinput){
+        public ImageObject(double xinput, double yinput, double xwidthinput, double yheightinput, double angleinput) {
             x = xinput;
             y = yinput;
+
             xwidth = xwidthinput;
             yheight = yheightinput;
             angle = angleinput;
             internalangle = 0.0;
             coords = new Vector<Double>();
+            lastposx = x;
+            lastposy = y;
         }
 
-        public double getX (){
+        public double getX() {
             return x;
         }
 
-        public double getY(){
+        public double getY() {
             return y;
         }
-
 
         public double getWidth() {
             return xwidth;
         }
+
         public double getHeight() {
             return yheight;
         }
@@ -579,27 +660,26 @@ public class Asteroids {
         }
 
         public void generateTriangles() {
-            triangles = new Vector<Double>( ) ;
+            triangles = new Vector<Double>();
             // format : (0 , 1) , (2 , 3) , (4 , 5) i s the ( x , y ) coords of a triangle.
             // get center point of all coordinates .
-            comX = getComX ( ) ;
-            comY = getComY ( ) ;
-            for ( int i = 0 ; i < coords.size() ; i = i + 2 )
-            {
-                triangles.addElement ( coords . elementAt ( i ) ) ;
-                triangles.addElement ( coords . elementAt ( i +1) ) ;
-                triangles.addElement ( coords . elementAt ( ( i +2) % coords.size( ) )) ;
-                triangles.addElement ( coords . elementAt ( ( i +3) % coords.size() )) ;
-                triangles.addElement (comX ) ;
-                triangles.addElement (comY ) ;
+            comX = getComX();
+            comY = getComY();
+            for (int i = 0; i < coords.size(); i = i + 2) {
+                triangles.addElement(coords.elementAt(i));
+                triangles.addElement(coords.elementAt(i + 1));
+                triangles.addElement(coords.elementAt((i + 2) % coords.size()));
+                triangles.addElement(coords.elementAt((i + 3) % coords.size()));
+                triangles.addElement(comX);
+                triangles.addElement(comY);
             }
         }
 
         public void printTriangles() {
             for (int i = 0; i < triangles.size(); i = i + 6) {
-                System.out.println("p0x: " + triangles.elementAt(i) + ", p0y: "  +
+                System.out.println("p0x: " + triangles.elementAt(i) + ", p0y: " +
                         triangles.elementAt(i + 1));
-                System.out.println(" p1x: " + triangles.elementAt(i + 2) + ", p1y: "+
+                System.out.println(" p1x: " + triangles.elementAt(i + 2) + ", p1y: " +
                         triangles.elementAt(i + 3));
                 System.out.println(" p2x: " + triangles.elementAt(i + 4) + ", p2y: " +
                         triangles.elementAt(i + 5));
@@ -608,8 +688,8 @@ public class Asteroids {
 
         public double getComX() {
             double ret = 0;
-            if ( coords.size() > 0) {
-                for ( int i = 0; i < coords.size(); i = i + 2) {
+            if (coords.size() > 0) {
+                for (int i = 0; i < coords.size(); i = i + 2) {
                     ret = ret + coords.elementAt(i);
                 }
                 ret = ret / (coords.size() / 2.0);
@@ -619,13 +699,47 @@ public class Asteroids {
 
         public double getComY() {
             double ret = 0;
-            if ( coords.size() > 0) {
-                for ( int i = 1; i < coords.size(); i = i + 2) {
+            if (coords.size() > 0) {
+                for (int i = 1; i < coords.size(); i = i + 2) {
                     ret = ret + coords.elementAt(i);
                 }
                 ret = ret / (coords.size() / 2.0);
             }
             return ret;
+        }
+
+        public void setLastposx(double lastposx) {
+            this.lastposx = lastposx;
+        }
+
+        public void setLastposy(double lastposy) {
+            this.lastposy = lastposy;
+        }
+
+        public double getLastposx() {
+            return lastposx;
+        }
+
+        public double getLastposy() {
+            return lastposy;
+        }
+
+        public boolean getBounce() {
+            return bounce;
+        }
+
+        public void setBounce(boolean bounce) {
+            this.bounce = bounce;
+        }
+
+        public void updateBounce() {
+            if (getBounce()) {
+                moveto(getLastposx(), getLastposy());
+            } else {
+                setLastposx(getX());
+                setLastposy(getY());
+            }
+            setBounce(false);
         }
 
         public void move(double xinput, double yinput) {
@@ -640,26 +754,26 @@ public class Asteroids {
 
         public void screenWrap(double leftEdge, double rightEdge, double topEdge, double bottomEdge) {
             if (x > rightEdge) {
-                moveto( leftEdge, getY() );
+                moveto(leftEdge, getY());
             }
             if (x < leftEdge) {
-                moveto( rightEdge, getY() );
+                moveto(rightEdge, getY());
             }
             if (y > bottomEdge) {
-                moveto( getX(), topEdge );
+                moveto(getX(), topEdge);
             }
             if (y < topEdge) {
-                moveto( getX(), bottomEdge );
+                moveto(getX(), bottomEdge);
             }
         }
 
         public void rotate(double angleinput) {
             angle = angle + angleinput;
-            while ( angle > twoPi) {
+            while (angle > twoPi) {
                 angle = angle - twoPi;
             }
 
-            while ( angle < 0 ) {
+            while (angle < 0) {
                 angle = angle + twoPi;
             }
         }
@@ -675,6 +789,7 @@ public class Asteroids {
             }
         }
 
+
         private double x;
         private double y;
         private double xwidth;
@@ -685,8 +800,10 @@ public class Asteroids {
         private Vector<Double> triangles;
         private double comX;
         private double comY;
+        private double lastposx;
+        private double lastposy;
+        private boolean bounce;
     }
-
 
 
     public static void bindKey(JPanel myPanel, String input) {
@@ -704,7 +821,7 @@ public class Asteroids {
 
         JPanel myPanel = new JPanel();
 
-        String[] levels = {"One", "Two", "Three", "Four",  "Five",  "Six",  "Seven",  "Eight",  "Nine",  "Ten"};
+        String[] levels = {"One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"};
         //check parameters for levelMenu method and the inputs
         JComboBox<String> levelMenu = new JComboBox<String>(levels);
         levelMenu.setSelectedIndex(1);
@@ -719,19 +836,27 @@ public class Asteroids {
         quitButton.addActionListener(new QuitGame());
         myPanel.add(quitButton);
 
-        bindKey(myPanel, "UP" );
-        bindKey(myPanel, "DOWN" );
-        bindKey(myPanel, "LEFT" );
-        bindKey(myPanel, "RIGHT" );
+        bindKey(myPanel, "UP");
+        bindKey(myPanel, "DOWN");
+        bindKey(myPanel, "LEFT");
+        bindKey(myPanel, "RIGHT");
 
-        bindKey(myPanel,"W");
-        bindKey(myPanel,"S");
-        bindKey(myPanel,"A");
-        bindKey(myPanel,"D");
+        bindKey(myPanel, "W");
+        bindKey(myPanel, "S");
+        bindKey(myPanel, "A");
+        bindKey(myPanel, "D");
 
         appFrame.getContentPane().add(myPanel, "South");
         appFrame.setVisible(true);
     }
+
+    private static Vector<ImageObject> walls = new Vector<>();
+
+    private static Boolean p1HitCheck;
+    private static Boolean p2HitCheck;
+
+    private static int p1lapsTaken;
+    private static int p2lapsTaken;
 
     private static Boolean endgame;
     private static BufferedImage background;
@@ -763,6 +888,8 @@ public class Asteroids {
     private static double p2originalY;
     private static double p2velocity;
 
+    private static ImageObject checkPoint;
+    private static ImageObject finalPoint;
     private static ImageObject flameP1;
     private static ImageObject flameP2;
     private static BufferedImage frontLight;
