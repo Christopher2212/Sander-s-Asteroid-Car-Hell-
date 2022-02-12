@@ -1,11 +1,10 @@
 import java.awt.*;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Vector;
 import java.util.Random;
-
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
@@ -41,40 +40,54 @@ public class Asteroids {
     }
 
     public static void setup() {
+        timer = Instant.now();
         appFrame = new JFrame("Asteroids");
         XOFFSET = 0;
         YOFFSET = 0;
-        WINWIDTH = 480;
-        WINHEIGHT = 480;
+        WINWIDTH = 700;
+        WINHEIGHT = 750;
         pi = 3.14159265358979;
         twoPi = 2.0 * 3.14159265358979;
         endgame = false;
 
         // TODO: Make sure that entities' width and height match the png width and height
-        p2width = 25.0;
-        p2height = 25.0;
+        p2width = 15.0;
+        p2height = 20.0;
         p2originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p2originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
 
-        p1width = 25.0;
-        p1height = 25.0;
+        p1width = 15.0;
+        p1height = 20.0;
         p1originalX = (double) XOFFSET + ((double) WINWIDTH / 2.0) - (p1width / 2.0);
         p1originalY = (double) YOFFSET + ((double) WINHEIGHT / 2.0) - (p1height / 2.0);
 
-        explosionlifetime = new Long(800);
+
         flamewidth = 52;
-        expcount = 1;
+
         level = 3;
 
-        walls.add(new ImageObject(0,35,150,5, 0.0));
+        walls.add(new ImageObject(32,195,270,5, 0.0));
+        walls.add(new ImageObject(35,189,5,485,0.0));
+        walls.add(new ImageObject(83,235,170,5,0.0));
+        walls.add(new ImageObject(83,239,5,377,0.0));
+        walls.add(new ImageObject(83,630,497,5,0.0));
+        walls.add(new ImageObject(85,700,497,5,0.0));
+        walls.add(new ImageObject(595,160,5,465,0.0));
+        walls.add(new ImageObject(660,163,5,465,0.0));
+        walls.add(new ImageObject(516,157,66,5,0.0));
+        walls.add(new ImageObject(516,110,66,5,0.0));
+        walls.add(new ImageObject(462,157,5,388,0.0));
+        walls.add(new ImageObject(513,157,5,388,0.0));
+        walls.add(new ImageObject(300,541,165,5,0.0));
+        walls.add(new ImageObject(300,590,165,5,0.0));
+        walls.add(new ImageObject(300,237,5,310,0.0)); // check here
+        walls.add(new ImageObject(250,237,5,310,0.0));
 
-        try { //TODO add pictures and pathnames to said pictures
+        try {
             background = ImageIO.read(new File("src/pictures/Background.png"));
-            player = ImageIO.read(new File("src/pictures/player1.png"));
-            player2 = ImageIO.read(new File("src/pictures/player2.png"));
+            player = ImageIO.read(new File("src/pictures/Player1Car.png"));
+            player2 = ImageIO.read(new File("src/pictures/Player2Car.png"));
             frontLight = ImageIO.read(new File("src/pictures/carLights.png"));
-            exp1 = ImageIO.read(new File("src/pictures/Explosion1.png"));
-            exp2 = ImageIO.read(new File("src/pictures/Explosion2.png"));
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
@@ -86,7 +99,7 @@ public class Asteroids {
         public void run() {
             while (endgame == false) {
                 backgroundDraw();
-                explosionsDraw();
+                explosionsDraw(timer);
                 player2Draw();
                 playerDraw();
                 flameDraw();
@@ -114,13 +127,13 @@ public class Asteroids {
 
                 }
 
-                if (upPressed == true && p1velocity <= 3) { //This allows more or less control over max velocity
+                if (upPressed == true && p1velocity <= 1) { //This allows more or less control over max velocity
                     p1velocity = p1velocity + velocitystep;
                 }else{
                     p1velocity = p1velocity;
                 }
 
-                if (downPressed == true && p1velocity >= -3) {
+                if (downPressed == true && p1velocity >= -1) {
                     p1velocity = p1velocity - velocitystep;
                 }else{
                     p1velocity = p1velocity;
@@ -166,13 +179,13 @@ public class Asteroids {
 
                 }
 
-                if (upPressedP2 == true && p2velocity <= 3) { //This allows more or less control over max velocity
+                if (upPressedP2 == true && p2velocity <= 1) { //This allows more or less control over max velocity
                     p2velocity = p2velocity + velocitystep;
                 }else{
                     p2velocity = p2velocity;
                 }
 
-                if (downPressedP2 == true && p2velocity >= -3) {
+                if (downPressedP2 == true && p2velocity >= -1) {
                     p2velocity = p2velocity - velocitystep;
                 }else{
                     p2velocity = p2velocity;
@@ -209,7 +222,7 @@ public class Asteroids {
 
         public void run() {
             while (endgame == false) {
-                lockrotateObjAroundObjtop(flameP1, p1, gap);
+                lockrotateObjAroundObjtop(lightP1, p1, gap);
             }
         }
 
@@ -223,7 +236,7 @@ public class Asteroids {
 
         public void run() {
             while (endgame == false) {
-                lockrotateObjAroundObjtop(flameP2, p2, gap);
+                lockrotateObjAroundObjtop(lightP2, p2, gap);
             }
         }
 
@@ -270,13 +283,17 @@ public class Asteroids {
 
     private static class WinChecker implements Runnable {
         public void run() {
-            if(p1lapsTaken == 2){
-                System.out.println("Player One Wins!");
-                endgame = true;
-            }
-            if(p2lapsTaken == 2){
-                System.out.println("Player Two Wins!");
-                endgame = true;
+            while(endgame == false) {
+                if (p1lapsTaken == 2) {
+                    System.out.println("Player One Wins!");
+                    timer.equals(0);
+                    endgame = true;
+                }
+                if (p2lapsTaken == 2) {
+                    System.out.println("Player Two Wins!");
+                    timer.equals(0);
+                    endgame = true;
+                }
             }
         }
     }
@@ -307,7 +324,7 @@ public class Asteroids {
     private static void backgroundDraw() {
         Graphics g = appFrame.getGraphics();
         Graphics2D g2D = (Graphics2D) g;
-        g2D.drawImage(background, XOFFSET, YOFFSET, null);
+        g2D.drawImage(background, 0, 0, null);
     }
 
     private static void player2Draw() {
@@ -326,7 +343,7 @@ public class Asteroids {
         if (p1velocity > 0) {
             Graphics g = appFrame.getGraphics();
             Graphics2D g2D = (Graphics2D) g;
-            g2D.drawImage(rotateImageObject(flameP1).filter(frontLight, null), (int) (flameP1.getX() + 0.5), (int) (flameP1.getY() + 0.5), null);
+            g2D.drawImage(rotateImageObject(lightP1).filter(frontLight, null), (int) (lightP1.getX() + 0.5), (int) (lightP1.getY() + 0.5), null);
         }
 
     }
@@ -335,25 +352,26 @@ public class Asteroids {
         if (p2velocity > 0) {
             Graphics g = appFrame.getGraphics();
             Graphics2D g2D = (Graphics2D) g;
-            g2D.drawImage(rotateImageObject(flameP2).filter(frontLight, null), (int) (flameP2.getX() + 0.5), (int) (flameP2.getY() + 0.5), null);
+            g2D.drawImage(rotateImageObject(lightP2).filter(frontLight, null), (int) (lightP2.getX() + 0.5), (int) (lightP2.getY() + 0.5), null);
         }
 
     }
-
-    private static void explosionsDraw() {
+    private static void explosionsDraw(Instant t) {
         // tied to line 39 jtext
         // line 4 has a library for time
-            Graphics g = appFrame.getGraphics();
-            Graphics2D g2D = (Graphics2D) g;
-            g2D.setColor(Color.white);
-            g2D.scale(2,2);
-            Instant start = Instant.now();
-//          Instant diff = start - Instant.now();
-            String time = start.toString();
-//          String time = (Instant.now() - start).toString();
-            g2D.drawString(time, 5, 30);
-            // time passes
+
+        Graphics g = appFrame.getGraphics();
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.setColor(Color.white);
+        g2D.scale(2,2);
+        Instant start = Instant.now();
+        Duration diff = Duration.between(t, start);
+        String time = diff.toString().substring(2, 6);
+        g2D.drawString(time, 5, 30);
+        // time passes
+
     }
+
 
     private static class KeyPressed extends AbstractAction {
         public KeyPressed() {
@@ -453,8 +471,12 @@ public class Asteroids {
             leftPressedP2 = false;
             rightPressedP2 = false;
 
-            p1 = new ImageObject(p1originalX, p1originalY, p1width, p1height, 0.0);
-            p2 = new ImageObject(p2originalX, p2originalY, p2width, p2height, 0.0);
+            p1 = new ImageObject(340, 650, p1width, p1height, pi/2);
+            p2 = new ImageObject(340, 675, p2width, p2height, pi/2);
+
+            lightP1 = new ImageObject(p1width / 2.0, p1height, flamewidth, flamewidth, 0.0);
+            lightP2 = new ImageObject(p2width / 2.0, p2height, flamewidth, flamewidth, 0.0);
+
             p1velocity = 0.0;
             p2velocity = 0.0;
 
@@ -473,18 +495,13 @@ public class Asteroids {
 
             checkPoint = new ImageObject(145,145,.5,.5,0);
             finalPoint = new ImageObject(145,145,.5,.5,0);
-            flameP1 = new ImageObject(p1originalX + p1width / 2.0, p1originalY + p1height, flamewidth / 2, flamewidth, 0.0);
-            flameP2 = new ImageObject(p2originalX + p2width / 2.0, p2originalY + p2height, flamewidth, flamewidth, 0.0);
-            expcount = 1;
+
 
             try {
                 Thread.sleep(50);
             } catch (InterruptedException ie) {
                 ie.printStackTrace();
             }
-
-            explosions = new Vector<ImageObject>();
-            explosionsTimes = new Vector<Long>();
             endgame = false;
 
             Thread t1 = new Thread(new Animate());
@@ -817,7 +834,7 @@ public class Asteroids {
     public static void main(String[] args) {
         setup();
         appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appFrame.setSize(480, 480);
+        appFrame.setSize(700, 750);
 
         JPanel myPanel = new JPanel();
 
@@ -890,18 +907,11 @@ public class Asteroids {
 
     private static ImageObject checkPoint;
     private static ImageObject finalPoint;
-    private static ImageObject flameP1;
-    private static ImageObject flameP2;
+    private static ImageObject lightP1;
+    private static ImageObject lightP2;
     private static BufferedImage frontLight;
     private static double flamewidth;
     private static int level;
-
-    private static Vector<ImageObject> explosions;
-    private static Vector<Long> explosionsTimes;
-    private static Long explosionlifetime;
-    private static BufferedImage exp1;
-    private static BufferedImage exp2;
-    private static int expcount;
 
     private static int XOFFSET;
     private static int YOFFSET;
@@ -910,7 +920,7 @@ public class Asteroids {
 
     private static double pi;
     private static double twoPi;
-
+    private static Instant timer;
     private static JFrame appFrame;
 
     private static final int IFW = JComponent.WHEN_IN_FOCUSED_WINDOW;
